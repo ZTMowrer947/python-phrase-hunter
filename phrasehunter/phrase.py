@@ -1,48 +1,53 @@
 """Module for Phrase class"""
 # Create your Phrase class logic here.
 
-"""
-class Phrase
-    define initializer
-        with arg phrase of type string
-        
-        set phrase property on instance to lowercased phrase
-        set correct_guesses property to empty list
-    end initializer
-    
-    define method display
-        with arg correct_guesses of type list
-        set split_string to instance phrase converted to list
-        
-        for each index and char in enumerating split_string
-            if char is not in guesses
-                set char at index to "_"
-            end if
-        end for
-        
-        set rejoined_string to split_string rejoined by ""
-        print rejoined_string
-    end method
-    
-    define method check_letter
-        with arg letter of type string
-        
-        set is_correct to result of checking if letter is in instance phrase
-        
-        if is_correct
-            append letter to instance correct_guesses list
-        end if
-        
+
+class Phrase:
+    """Phrase to be guessed by a player."""
+
+    def __init__(self, phrase: str):
+        self.phrase = phrase.lower()
+        self.correct_guesses = []
+
+    def display(self):
+        """
+        Display the current status of the phrase, only showing the
+        letters of the phrase that have been guessed.
+        """
+        split_string = list(self.phrase)
+
+        for index, char in enumerate(split_string):
+            if char != " " and char not in self.correct_guesses:
+                split_string[index] = "_"
+
+        rejoined_string = "".join(split_string)
+        print(rejoined_string)
+
+    def check_letter(self, letter: str) -> bool:
+        """
+        Determine whether the provided letter is in this phrase.
+
+        :param letter: The letter the user is guessing
+        :return: Whether the letter is in the phrase
+        """
+        normalized_letter = letter.lower()
+        is_correct = normalized_letter in self.phrase
+
+        if is_correct:
+            self.correct_guesses.append(normalized_letter)
+
         return is_correct
-    end method
-    
-    define method check_complete
-        with arg guesses of type list
-        
-        set letters to instance phrase converted to set
-        set guesses_set to guesses converted to set
-        
-        return result of checking if letters is a subset of guesses_set
-    end method    
-end class
-"""
+
+    def check_complete(self) -> bool:
+        """
+        Check whether all characters in this phrase have been
+        guessed by the player.
+
+        :return: Whether the phrase has been completed.
+        """
+        phrase_letters = set(
+            [char for char in self.phrase if char != " "])
+        guesses_set = set(self.correct_guesses)
+
+        return phrase_letters == guesses_set
+
