@@ -1,71 +1,86 @@
 """Module for Game class"""
-# Create your Game class logic in here.
+import random
 
-"""
-class Game
-    set TOTAL_LIVES property on class to 5
+from phrasehunter.phrase import Phrase
 
-    define initializer
-        set phrases property on instance to list of Phrase instances each with predetermined phrases
-        set missed property on instance to 0
-        set active_phrase property on instance to None
-        set guesses property on instance to an empty list
-    end initializer
-    
-    define method get_random_phrase
-        return randomly selected phrase from instance phrases list
-    end method
-    
-    define method welcome
-        print "Welcome to Phrase Hunter! Can you guess the phrase before you run out of lives?"
-    end method
-    
-    define method get_guess
-        while user guess is not valid
-            prompt user for guess
-            store result in user_guess
-            
-            if user_guess is not one character or is not a letter
-                print "Sorry, that isn't a valid guess. Guesses must consist of single letters."
-                loop so that user can make another guess
-            else if user_guess is in instance guesses list
-                print "You have already guessed that letter."
-                loop so that user can make another guess
-            else
-                append user_guess to instance guesses list
+
+class Game:
+    ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+    TOTAL_LIVES = 5
+
+    def __init__(self):
+        self.phrases = [
+            Phrase('friendship is magic'),
+            Phrase('all your base are belong to us'),
+            Phrase('what is a man a miserable little pile of secrets'),
+            Phrase('seize the day'),
+            Phrase('the cat in the hat')
+        ]
+        self.missed = 0
+        self.active_phrase: Phrase = None  # Will be initialized in start()
+        self.guesses = []
+
+    def get_random_phrase(self) -> Phrase:
+        return random.choice(self.phrases)
+
+    def welcome(self):
+        """Print a welcome message for the user"""
+        print("Welcome to Phrase Hunter!")
+        print("Can you guess the phrase before you run out of lives?\n")
+
+    def get_guess(self) -> str:
+        """
+        Repeatedly prompt the user to guess a letter until a valid
+        guess is received
+
+        :return: The user's guess
+        """
+        while True:
+            user_guess = input('Guess a letter: ').lower()
+
+            if len(user_guess) != 1 or user_guess not in Game.ALPHABET:
+                print("Sorry, that isn't a valid guess.")
+                print("Guesses must consist of single letters.\n")
+            elif user_guess in self.guesses:
+                print("You have already guessed that letter.\n")
+            else:
+                self.guesses.append(user_guess)
                 return user_guess
-            end if
-        end while
-    end method
-    
-    define method game_over
-        set message
-            to "Congratulations, you win!" if result of calling check_complete on instance active_phrase is True
-            to "Sorry, you lost..." otherwise
-        end set
-        
-        print message
-    end method
-    
-    define method start
-        call welcome method
-        
-        set instance active_phrase to result of calling get_random_phrase method
-        
-        while instance missed property is less than class TOTAL_LIVES property
-            and result of calling check_complete on instance active_phrase is False
-            
-            call display method on instance active_phrase
-            
-            set guess to result of calling get_guess method
-            
-            if result of calling check_letter on instance active_phrase is False
-                increment instance missed by 1
-                print "Incorrect. You have {missed} out of {TOTAL_LIVES} remaining."
-            end if
-        end while
-        
-        call method game_over
-    end method
-end class
-"""
+
+    def game_over(self):
+        """Print the result of the game along with what the phrase was"""
+
+        if self.active_phrase.check_complete():
+            message = "Congratulations, you win!\n"
+        else:
+            message = "Sorry, you lost...\n"
+            self.active_phrase.reveal_complete_phrase()
+
+        print(message)
+        print('The phrase was:')
+        self.active_phrase.display()
+
+    def start(self):
+        """Begin the game"""
+
+        self.welcome()
+
+        self.active_phrase = self.get_random_phrase()
+
+        # Loop while player has neither lost nor won
+        while (self.missed < Game.TOTAL_LIVES and
+                not self.active_phrase.check_complete()):
+            self.active_phrase.display()
+
+            guess = self.get_guess()
+
+            is_correct = self.active_phrase.check_letter(guess)
+            if not is_correct:
+                self.missed += 1
+                remaining_guesses = Game.TOTAL_LIVES - self.missed
+                print(f'Incorrect. You have {remaining_guesses} guesses left.')
+
+            print()
+
+        self.game_over()
+

@@ -1,5 +1,4 @@
 """Module for Phrase class"""
-# Create your Phrase class logic here.
 
 
 class Phrase:
@@ -9,19 +8,24 @@ class Phrase:
         self.phrase = phrase.lower()
         self.correct_guesses = []
 
+    def __str__(self):
+        split_string = list(self.phrase)
+
+        for index, char in enumerate(split_string):
+            # Hide each letter that has yet to be guessed
+            if char != " " and char not in self.correct_guesses:
+                split_string[index] = "_"
+
+        rejoined_string = "".join(split_string)
+
+        return rejoined_string
+
     def display(self):
         """
         Display the current status of the phrase, only showing the
         letters of the phrase that have been guessed.
         """
-        split_string = list(self.phrase)
-
-        for index, char in enumerate(split_string):
-            if char != " " and char not in self.correct_guesses:
-                split_string[index] = "_"
-
-        rejoined_string = "".join(split_string)
-        print(rejoined_string)
+        print(self)
 
     def check_letter(self, letter: str) -> bool:
         """
@@ -45,9 +49,20 @@ class Phrase:
 
         :return: Whether the phrase has been completed.
         """
-        phrase_letters = set(
-            [char for char in self.phrase if char != " "])
+        phrase_letters = set([char for char in self.phrase if char != " "])
         guesses_set = set(self.correct_guesses)
 
         return phrase_letters == guesses_set
 
+    def reveal_complete_phrase(self):
+        """Reveal all unguessed letters in the phrase"""
+
+        if not self.check_complete():
+            phrase_letters = set(
+                [char for char in self.phrase if char != " "
+                 and char not in self.correct_guesses
+                 ]
+            )
+
+            for letter in phrase_letters:
+                self.check_letter(letter)
