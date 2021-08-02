@@ -16,7 +16,7 @@ class Phrase:
             if char != " " and char not in self.correct_guesses:
                 split_string[index] = "_"
 
-        rejoined_string = "".join(split_string)
+        rejoined_string = " ".join(split_string)
 
         return rejoined_string
 
